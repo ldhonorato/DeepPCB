@@ -74,13 +74,19 @@ def saveFilesToPath(files_list, dest_path):
 
 def loadImagesFromFolder(folderPath, imgDim):
     files = glob.glob(folderPath + '/*')
-    images = [img_to_array(load_img(img, target_size=imgDim)) for img in files]
+    images = [img_to_array(load_img(img, target_size=imgDim))[:,:,0] for img in files]
     images = np.array(images)
     labels = ["test" in fn for fn in files]
     return (images, labels)
 
-def run_dataset_preparation(datasetPath='DeepPCB/PCBData/', train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
-	(training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
+def run_dataset_preparation(train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
+	datasetPath='../PCBData/'
+	shutil.rmtree(train_dir, ignore_errors=True)
+	shutil.rmtree(val_dir, ignore_errors=True)
+  
+  
+  	(training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
+
 
 	print('Trainining files = ', len(training_files))
 	print('Validation files = ', len(validation_files))
@@ -97,5 +103,6 @@ def run_dataset_preparation(datasetPath='DeepPCB/PCBData/', train_dir='PCB_train
 	validation_labels_enc = le.transform(validation_labels)
 	
 	return (train_imgs, train_labels), (validation_imgs, validation_labels)
+
 
 
