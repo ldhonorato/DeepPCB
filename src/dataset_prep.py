@@ -83,10 +83,8 @@ def run_dataset_preparation(train_dir='PCB_training_data', val_dir = 'PCB_valida
 	datasetPath='../PCBData/'
 	shutil.rmtree(train_dir, ignore_errors=True)
 	shutil.rmtree(val_dir, ignore_errors=True)
-  
-  
-  	(training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
 
+	(training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
 
 	print('Trainining files = ', len(training_files))
 	print('Validation files = ', len(validation_files))
