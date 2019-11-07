@@ -43,7 +43,7 @@ def splitTrainingValidationDataset(datasetPath, trainingExamples=1500):
     return (training_files, validation_files)
 
 
-def getTestImageFiles(datasetPath):
+def getTestImageFiles(datasetPath='DeepPCB/PCBData/'):
     #same process for training
     badFiles_test = [] #files of pcb with defects
     goodFiles_test = [] #files of pcb without defects
