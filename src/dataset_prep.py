@@ -74,7 +74,7 @@ def saveFilesToPath(files_list, dest_path):
 
 def loadImagesFromFolder(folderPath, imgDim):
     files = glob.glob(folderPath + '/*')
-    images = [img_to_array(load_img(img, target_size=imgDim))[:,:,0] for img in files]
+    images = [img_to_array(load_img(img, target_size=imgDim))[:,:,0:1] for img in files]
     images = np.array(images)
     labels = ["test" in fn for fn in files]
     return (images, labels)
