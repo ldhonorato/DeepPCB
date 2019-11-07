@@ -79,8 +79,7 @@ def loadImagesFromFolder(folderPath, imgDim):
     labels = ["test" in fn for fn in files]
     return (images, labels)
 
-def run_dataset_preparation(train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
-	datasetPath='../PCBData/'
+def run_dataset_preparation(datasetPath='DeepPCB/PCBData/',train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
 	shutil.rmtree(train_dir, ignore_errors=True)
 	shutil.rmtree(val_dir, ignore_errors=True)
 
@@ -94,13 +93,16 @@ def run_dataset_preparation(train_dir='PCB_training_data', val_dir = 'PCB_valida
 
 	(train_imgs, train_labels) = loadImagesFromFolder(train_dir, IMG_DIM)
 	(validation_imgs, validation_labels) = loadImagesFromFolder(val_dir, IMG_DIM)
-
+	
+	train_imgs_scaled = train_imgs / 255.
+	validation_imgs_scaled = validation_imgs / 255.
+	
 	le = LabelEncoder()
 	le.fit(train_labels)
 	train_labels_enc = le.transform(train_labels)
 	validation_labels_enc = le.transform(validation_labels)
 	
-	return (train_imgs, train_labels), (validation_imgs, validation_labels)
+	return (train_imgs, train_imgs_scaled, train_labels, train_labels_enc), (validation_imgs, validation_imgs_scaled, validation_labels, validation_labels_enc)
 
 
 
