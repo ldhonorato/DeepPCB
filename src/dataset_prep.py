@@ -90,12 +90,15 @@ def class2number(labelClass):
     return np.array(labelClass)*1 #labelClass must be boolean array
 
 def loadTestImagesFromFolder(test_dir='PCB_test_data', imgDim=(224,224)):
-    test_img, test_labels = loadImagesFromFolder(test_dir, imgDim)
-    test_imgs_scaled = test_img / 255.
+    test_files = glob.glob(test_dir + '/*')
+    test_imgs = [img_to_array(load_img(img, target_size=imgDim)) for img in test_files]
+    test_imgs = np.array(test_imgs)
+    test_labels = ["test" in fn.split('/')[1] for fn in test_files]
+    test_imgs_scaled = test_imgs / 255.
     test_labels_enc = class2number(test_labels)
 
-    print('Test dataset shape:', test_img.shape)
-    return (test_img, test_imgs_scaled, test_labels, test_labels_enc)
+    print('Test dataset shape:', test_imgs.shape)
+    return (test_imgs, test_imgs_scaled, test_labels, test_labels_enc)
 
 def run_dataset_preparation(datasetPath='DeepPCB/PCBData/',train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
     shutil.rmtree(train_dir, ignore_errors=True)
