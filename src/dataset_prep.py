@@ -3,7 +3,7 @@ import numpy as np
 import os
 import shutil
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array, array_to_img
-from sklearn.preprocessing import LabelEncoder
+#from sklearn.preprocessing import LabelEncoder
 
 def splitTrainingValidationDataset(datasetPath, trainingExamples=1500):
     badFiles = [] #files of pcb with defects
@@ -43,7 +43,7 @@ def splitTrainingValidationDataset(datasetPath, trainingExamples=1500):
     return (training_files, validation_files)
 
 
-def getTestImageFiles(datasetPath='DeepPCB/PCBData/'):
+def getTestImageFiles(datasetPath='DeepPCB/PCBData/', test_dir='PCB_test_data'):
     #same process for training
     badFiles_test = [] #files of pcb with defects
     goodFiles_test = [] #files of pcb without defects
@@ -61,6 +61,9 @@ def getTestImageFiles(datasetPath='DeepPCB/PCBData/'):
 
     test_files = np.concatenate([goodFiles_test, badFiles_test])
 
+    if test_dir != '':
+        saveFilesToPath(test_files, test_dir)
+
     return test_files
 
 def saveFilesToPath(files_list, dest_path):
@@ -72,38 +75,52 @@ def saveFilesToPath(files_list, dest_path):
     for fn in files_list:
         shutil.copy(fn, dest_path)
 
-def loadImagesFromFolder(folderPath, imgDim):
+def loadImagesFromFolder(folderPath, imgDim=(224,224)):
     files = glob.glob(folderPath + '/*')
-    #images = [img_to_array(load_img(img, target_size=imgDim))[:,:,0:1] for img in files]
-    images = [img_to_array(load_img(img, target_size=imgDim)) for img in files]
+    images = [img_to_array(load_img(img, target_size=imgDim))[:,:,0:1] for img in files]
     images = np.array(images)
     labels = ["test" in fn for fn in files]
     return (images, labels)
 
+def number2label(numberClass):
+    return np.array(numberClass).astype(bool)
+
+def class2number(labelClass):
+    return np.array(labelClass)*1 #labelClass must be boolean array
+
+def loadTestImagesFromFolder(test_dir='PCB_test_data', imgDim=(224,224)):
+    test_img, test_labels = loadImagesFromFolder(test_dir, imgDim)
+    test_imgs_scaled = test_img / 255.
+    test_labels_enc = class2number(test_labels)
+
+    print('Test dataset shape:', test_img.shape)
+    return (test_img, test_imgs_scaled, test_labels, test_labels_enc)
+
 def run_dataset_preparation(datasetPath='DeepPCB/PCBData/',train_dir='PCB_training_data', val_dir = 'PCB_validation_data', IMG_DIM=(224,224)):
-	shutil.rmtree(train_dir, ignore_errors=True)
-	shutil.rmtree(val_dir, ignore_errors=True)
+    shutil.rmtree(train_dir, ignore_errors=True)
+    shutil.rmtree(val_dir, ignore_errors=True)
 
-	(training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
+    (training_files, validation_files) = splitTrainingValidationDataset(datasetPath)
 
-	print('Trainining files = ', len(training_files))
-	print('Validation files = ', len(validation_files))
-	
-	saveFilesToPath(training_files, train_dir)
-	saveFilesToPath(validation_files, val_dir)
+    saveFilesToPath(training_files, train_dir)
+    saveFilesToPath(validation_files, val_dir)
 
-	(train_imgs, train_labels) = loadImagesFromFolder(train_dir, IMG_DIM)
-	(validation_imgs, validation_labels) = loadImagesFromFolder(val_dir, IMG_DIM)
-	
-	train_imgs_scaled = train_imgs / 255.
-	validation_imgs_scaled = validation_imgs / 255.
-	
-	le = LabelEncoder()
-	le.fit(train_labels)
-	train_labels_enc = le.transform(train_labels)
-	validation_labels_enc = le.transform(validation_labels)
-	
-	return (train_imgs, train_imgs_scaled, train_labels, train_labels_enc), (validation_imgs, validation_imgs_scaled, validation_labels, validation_labels_enc)
+    (train_imgs, train_labels) = loadImagesFromFolder(train_dir, IMG_DIM)
+    (validation_imgs, validation_labels) = loadImagesFromFolder(val_dir, IMG_DIM)
+
+    train_imgs_scaled = train_imgs / 255.
+    validation_imgs_scaled = validation_imgs / 255.
+
+    #le = LabelEncoder()
+    #le.fit(train_labels)
+    #train_labels_enc = le.transform(train_labels)
+    #validation_labels_enc = le.transform(validation_labels)
+    train_labels_enc = class2number(train_labels)
+    validation_labels_enc = class2number(validation_labels)
+
+    print('Trainining files = ', len(training_files))
+    print('Validation files = ', len(validation_files))
+    return (train_imgs, train_imgs_scaled, train_labels, train_labels_enc), (validation_imgs, validation_imgs_scaled, validation_labels, validation_labels_enc)
 
 
 
